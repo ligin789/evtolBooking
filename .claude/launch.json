@@ -1,0 +1,4 @@
+{"version":"0.0.1","configurations":[
+{"name":"ref","runtimeExecutable":"python3","runtimeArgs":["-m","http.server","5299","-d",".reference"],"port":5299},
+{"name":"app","runtimeExecutable":"npm","runtimeArgs":["run","dev","--","--port","5173","--strictPort"],"port":5173}
+]}
