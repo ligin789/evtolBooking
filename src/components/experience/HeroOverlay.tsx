@@ -1,5 +1,5 @@
 import { ArrowRight, Move3d } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { getAircraft } from '../../config/aircraft';
 import { CITY_NAME } from '../../config/vertiports';
 import { useExperience } from '../../store/experienceStore';
@@ -10,8 +10,12 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export function HeroOverlay() {
   const setStage = useExperience((s) => s.setStage);
   const ac = getAircraft(null);
+  // Fade the hero copy as the landing content scrolls up over it.
+  const { scrollY } = useScroll();
+  const fade = useTransform(scrollY, [0, 420], [1, 0]);
   return (
     <motion.section className="pointer-events-none fixed inset-0 z-20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.5 } }}>
+      <motion.div className="absolute inset-0" style={{ opacity: fade }}>
       <div className="absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-graphite/75 via-graphite/25 to-transparent" />
       <div className="absolute bottom-0 left-0 w-full px-5 pb-[max(28px,env(safe-area-inset-bottom))] sm:px-10 sm:pb-12 lg:px-14">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.1, ease, delay: 0.15 }} className="max-w-[760px]">
@@ -53,6 +57,7 @@ export function HeroOverlay() {
         <div className="mt-4 inline-flex items-center gap-2 text-[11px] text-ivory/55">
           <Move3d className="h-3.5 w-3.5" aria-hidden="true" /> Drag to orbit · scroll to zoom
         </div>
+      </motion.div>
       </motion.div>
     </motion.section>
   );

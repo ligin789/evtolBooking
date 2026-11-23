@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useExperience } from '../../store/experienceStore';
 import { Logo } from '../ui/Logo';
@@ -18,11 +19,26 @@ export function TopBar() {
   const stage = useExperience((s) => s.stage);
   const setStage = useExperience((s) => s.setStage);
   const step = currentStep(pathname, stage);
-  const onDarkPage = pathname !== '/';
+  // Over the navy landing sections (scrolled past the hero) the bar switches to its dark style.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.7);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  const onDarkPage = pathname !== '/' || scrolled;
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-4 pt-[max(14px,env(safe-area-inset-top))] sm:px-8 sm:pt-6">
-      <Link to="/" onClick={() => setStage('hero')} className="pointer-events-auto rounded-full" aria-label="AERIS home">
+      <Link
+        to="/"
+        onClick={() => {
+          setStage('hero');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        className={`pointer-events-auto rounded-full transition-all duration-300 ${scrolled ? 'glass-dark px-3 py-1.5' : ''}`}
+        aria-label="VIBE home">
         <Logo tone={onDarkPage ? 'light' : 'dark'} />
       </Link>
       <nav aria-label="Booking progress" className="pointer-events-auto hidden md:block">

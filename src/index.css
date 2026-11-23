@@ -20,6 +20,23 @@
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ease-cine: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* VIBE landing sections (ported from the EvtolLanding project) */
+  --color-velos-navy: #08131f;
+  --color-velos-blue: #102538;
+  --color-velos-ivory: #f5f3ee;
+  --color-velos-white: #ffffff;
+  --color-velos-mist: #dce3e7;
+  --color-velos-cyan: #66d9f2;
+  --color-velos-silver: #a8b6c2;
+  --font-velos-display: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-velos-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --tracking-tightest: -0.04em;
+  --tracking-editorial: -0.03em;
+}
+
+@utility bg-radial-glow {
+  background-image: radial-gradient(circle at center, rgba(102, 217, 242, 0.14) 0%, rgba(8, 19, 31, 0) 70%);
 }
 
 @layer base {
@@ -109,4 +126,19 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Landing sections keep their own typography inside the wrapper */
+.velos-landing {
+  font-family: var(--font-velos-sans);
+  color: var(--color-velos-white);
+  text-rendering: optimizeLegibility;
+}
+.velos-landing :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-velos-display);
+  letter-spacing: -0.03em;
+}
+.velos-landing ::selection {
+  background-color: rgba(102, 217, 242, 0.3);
+  color: #fff;
 }

@@ -17,6 +17,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 /** Persistent shell: the 3D scene lives here so it survives route changes. */
 function Shell() {
   const webgl = useMemo(hasWebGL, []);
+
   useEffect(() => {
     if (!webgl) {
       const s = useExperience.getState();

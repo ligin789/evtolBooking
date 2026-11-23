@@ -54,7 +54,7 @@ export function FloatingBookingTicket({ seatId, compact = false, passengerName, 
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between bg-graphite px-5 py-2.5 text-champagne-soft">
             <span className="eyebrow flex items-center gap-2">
-              <Plane className="h-3.5 w-3.5 -rotate-45" strokeWidth={2.2} aria-hidden="true" /> AERIS · {isPass ? 'Boarding pass' : 'Air taxi'}
+              <Plane className="h-3.5 w-3.5 -rotate-45" strokeWidth={2.2} aria-hidden="true" /> VIBE · {isPass ? 'Boarding pass' : 'Air taxi'}
             </span>
             <span className="eyebrow hidden text-champagne/80 sm:inline">{aircraft.name}</span>
           </div>

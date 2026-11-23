@@ -33,7 +33,7 @@ function buildFlights({ fromId, toId, date }: Omit<FlightSearch, 'passengers'>):
     const hh = Math.floor(m / 60);
     const departTime = `${String(hh).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
     const peak = PRICING.peakWindows.some(([a, b]) => hh >= a && hh < b);
-    const aircraftId = (Math.floor(m / interval) + hashString(routeSeed)) % 4 === 0 ? 'aeris-s7' : 'aeris-s5';
+    const aircraftId = (Math.floor(m / interval) + hashString(routeSeed)) % 4 === 0 ? 'vibe-s7' : 'vibe-s5';
     const id = `${from.code}${to.code}-${date.replace(/-/g, '')}-${departTime.replace(':', '')}`;
 
     const bookable = getSeats(aircraftId).filter((s) => s.bookable);

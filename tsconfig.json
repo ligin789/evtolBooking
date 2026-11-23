@@ -14,7 +14,9 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": false,
     "useDefineForClassFields": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"],
+    "baseUrl": ".",
+    "paths": { "@landing/*": ["src/landing/*"] }
   },
   "include": ["src", "vite.config.ts"]
 }

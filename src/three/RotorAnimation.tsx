@@ -91,7 +91,7 @@ export function RotorAnimation({ radius, blades = 5, role, direction = 1, mats, 
       </mesh>
       <group ref={spin} position={[0, 0.04, 0]}>
         {Array.from({ length: blades }, (_, i) => (
-          <mesh key={i} geometry={bladeGeo} material={bladeMat} rotation={[0, (i / blades) * Math.PI * 2, 0]} castShadow />
+          <mesh key={i} geometry={bladeGeo} material={bladeMat} rotation={[0, (i / blades) * Math.PI * 2, 0]} />
         ))}
       </group>
       <mesh material={discMat} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.045, 0]}>

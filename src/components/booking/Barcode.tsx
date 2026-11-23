@@ -5,7 +5,7 @@ import { hashString } from '../../lib/random';
 export function Barcode({ value, className = '', height = 34 }: { value: string; className?: string; height?: number }) {
   const bars = useMemo(() => {
     const out: { x: number; w: number }[] = [];
-    let h = hashString(value || 'AERIS');
+    let h = hashString(value || 'VIBE');
     let x = 0;
     while (x < 118) {
       h = Math.imul(h ^ (h >>> 13), 0x5bd1e995) >>> 0;

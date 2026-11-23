@@ -76,8 +76,8 @@ function seatsFromRows(cfg: Pick<AircraftConfig, 'pilot' | 'rows' | 'floorY'>): 
 }
 
 const S5: AircraftConfig = {
-  id: 'aeris-s5',
-  name: 'AERIS S5',
+  id: 'vibe-s5',
+  name: 'VIBE S5',
   model: 'S5 · 1 pilot + 4',
   tagline: 'Six-rotor electric air taxi',
   length: 6.2,
@@ -111,8 +111,8 @@ const S5: AircraftConfig = {
 };
 
 const S7: AircraftConfig = {
-  id: 'aeris-s7',
-  name: 'AERIS S7',
+  id: 'vibe-s7',
+  name: 'VIBE S7',
   model: 'S7 · 1 pilot + 6',
   tagline: 'Stretched six-passenger cabin',
   length: 7.2,

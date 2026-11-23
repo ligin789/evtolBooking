@@ -97,7 +97,7 @@ export const useBooking = create<BookingState>()(
         set({ search: initialSearch(), flight: null, seatAssignments: [null], activePassenger: 0, passengers: [], confirmation: null }),
     }),
     {
-      name: 'aeris-booking',
+      name: 'vibe-booking',
       storage: createJSONStorage(() => sessionStorage),
       version: 1,
       onRehydrateStorage: () => (state) => {

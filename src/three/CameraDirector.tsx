@@ -74,6 +74,10 @@ export function CameraDirector({ reducedMotion, isMobile }: { reducedMotion: boo
     const curve = new THREE.QuadraticBezierCurve3(startPos, ctrl, endPos);
 
     tween.current?.kill();
+    // Depth precision: a tiny near plane only where the camera is inside the cabin.
+    const near = shot.controls === 'look' ? 0.05 : shot.key.startsWith('focus') ? 0.15 : shot.controls === 'cabin' ? 0.3 : 0.5;
+    camera.near = Math.min(camera.near, near);
+    camera.updateProjectionMatrix();
     look.current.active = false;
     controls.enabled = false;
     controls.autoRotate = false;
@@ -95,6 +99,8 @@ export function CameraDirector({ reducedMotion, isMobile }: { reducedMotion: boo
         camera.lookAt(tmpTarget);
       },
       onComplete: () => {
+        camera.near = near;
+        camera.updateProjectionMatrix();
         configureControls(controls, shot, reducedMotion);
         if (shot.controls === 'look') {
           look.current = { ...look.current, active: true, yaw: 0, pitch: 0, baseDir: new THREE.Vector3().subVectors(endTarget, endPos).normalize() };
@@ -151,6 +157,8 @@ export function CameraDirector({ reducedMotion, isMobile }: { reducedMotion: boo
   }, [gl]);
 
   const lookDir = useMemo(() => new THREE.Vector3(), []);
+  const lookRight = useMemo(() => new THREE.Vector3(), []);
+  const lookAt = useMemo(() => new THREE.Vector3(), []);
   const smooth = useRef({ yaw: 0, pitch: 0 });
   useFrame((_, dt) => {
     const l = look.current;
@@ -163,9 +171,9 @@ export function CameraDirector({ reducedMotion, isMobile }: { reducedMotion: boo
     smooth.current.yaw += (l.yaw - smooth.current.yaw) * k;
     smooth.current.pitch += (l.pitch - smooth.current.pitch) * k;
     lookDir.copy(l.baseDir).applyAxisAngle(UP, -smooth.current.yaw);
-    const right = new THREE.Vector3().crossVectors(lookDir, UP).normalize();
-    lookDir.applyAxisAngle(right, -smooth.current.pitch);
-    camera.lookAt(camera.position.clone().add(lookDir));
+    lookRight.crossVectors(lookDir, UP).normalize();
+    lookDir.applyAxisAngle(lookRight, -smooth.current.pitch);
+    camera.lookAt(lookAt.copy(camera.position).add(lookDir));
   });
 
   return null;
@@ -173,16 +181,26 @@ export function CameraDirector({ reducedMotion, isMobile }: { reducedMotion: boo
 
 function configureControls(c: OrbitControlsImpl, shot: CameraShot, reducedMotion: boolean) {
   const dist = c.object.position.distanceTo(c.target);
+  // Touch screens: on the hero a vertical swipe must scroll the page, not orbit.
+  // a phone/tablet (coarse pointer), not a laptop that merely supports touch
+  const touch = window.matchMedia('(pointer: coarse)').matches;
+  const el = c.domElement as HTMLElement | undefined;
+  if (el) el.style.touchAction = touch && shot.key === 'hero' ? 'pan-y' : 'none';
   c.autoRotate = Boolean(shot.autoRotate) && !reducedMotion;
   c.autoRotateSpeed = 0.35;
   c.enablePan = false;
   c.rotateSpeed = 0.6;
   c.zoomSpeed = 0.7;
+  if (touch && shot.key === 'hero') {
+    c.enabled = false;
+    return;
+  }
   switch (shot.controls) {
     case 'orbit':
       c.enabled = true;
       c.enableRotate = true;
-      c.enableZoom = true;
+      // On the landing hero the wheel scrolls the page down to the content below.
+      c.enableZoom = shot.key !== 'hero';
       c.minDistance = Math.min(4.5, dist);
       c.maxDistance = Math.max(30, dist);
       c.minPolarAngle = 0.05;

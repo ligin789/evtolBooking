@@ -43,46 +43,66 @@ export function createAircraftMaterials() {
 
 export type AircraftMaterials = ReturnType<typeof createAircraftMaterials>;
 
-/** Soft round sprite used for clouds (generated, no network fetch). */
-export function makeCloudTexture(): string {
-  const size = 128;
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const g = c.getContext('2d')!;
-  const grad = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, 'rgba(255,255,255,1)');
-  grad.addColorStop(0.45, 'rgba(255,255,255,0.7)');
-  grad.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, size, size);
-  return c.toDataURL('image/png');
-}
-
-/** Façade texture with floor bands and lit windows for the instanced towers. */
-export function makeFacadeTexture(): THREE.CanvasTexture {
-  const w = 64;
-  const h = 256;
-  const c = document.createElement('canvas');
-  c.width = w;
-  c.height = h;
-  const g = c.getContext('2d')!;
-  g.fillStyle = '#ffffff';
-  g.fillRect(0, 0, w, h);
-  for (let y = 0; y < h; y += 8) {
-    g.fillStyle = 'rgba(60,72,88,0.28)';
-    g.fillRect(0, y + 2, w, 4);
-    for (let x = 0; x < w; x += 8) {
-      if (Math.random() < 0.12) {
-        g.fillStyle = 'rgba(255,214,150,0.9)';
-        g.fillRect(x + 1, y + 2, 6, 4);
-      }
-    }
-  }
-  const tex = new THREE.CanvasTexture(c);
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 4;
-  return tex;
+/**
+ * Instanced-building material. The façade texture is tiled by each instance's
+ * real size (read from the instance matrix) so windows keep a constant scale
+ * on every building; lit windows glow via the emissive map; roofs get a plain
+ * concrete tone with no windows.
+ */
+export function createFacadeMaterial(opts: {
+  map: THREE.Texture;
+  emissiveMap?: THREE.Texture;
+  tile: [number, number];
+  roughness?: number;
+  metalness?: number;
+  emissiveIntensity?: number;
+  key: string;
+}): THREE.MeshStandardMaterial {
+  const mat = new THREE.MeshStandardMaterial({
+    map: opts.map,
+    emissiveMap: opts.emissiveMap ?? null,
+    emissive: opts.emissiveMap ? new THREE.Color('#ffffff') : new THREE.Color('#000000'),
+    emissiveIntensity: opts.emissiveIntensity ?? 1,
+    roughness: opts.roughness ?? 0.6,
+    metalness: opts.metalness ?? 0.1,
+    envMapIntensity: 1.1,
+  });
+  const [tw, th] = opts.tile;
+  mat.onBeforeCompile = (shader) => {
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying float vRoof;')
+      .replace(
+        '#include <uv_vertex>',
+        `#include <uv_vertex>
+#ifdef USE_INSTANCING
+  vec3 instScale = vec3(length(instanceMatrix[0].xyz), length(instanceMatrix[1].xyz), length(instanceMatrix[2].xyz));
+#else
+  vec3 instScale = vec3(1.0);
+#endif
+  float facadeWidth = abs(normal.x) > 0.5 ? instScale.z : instScale.x;
+  vec2 facadeUv = uv * vec2(facadeWidth / ${tw.toFixed(2)}, instScale.y / ${th.toFixed(2)});
+#ifdef USE_MAP
+  vMapUv = facadeUv;
+#endif
+#ifdef USE_EMISSIVEMAP
+  vEmissiveMapUv = facadeUv;
+#endif
+  vRoof = abs(normal.y) > 0.5 ? 1.0 : 0.0;`,
+      );
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vRoof;')
+      .replace(
+        '#include <map_fragment>',
+        `#ifdef USE_MAP
+  vec4 sampledDiffuseColor = texture2D( map, vMapUv );
+  if ( vRoof > 0.5 ) sampledDiffuseColor = vec4( 0.6, 0.59, 0.57, 1.0 );
+  diffuseColor *= sampledDiffuseColor;
+#endif`,
+      )
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n  if ( vRoof > 0.5 ) totalEmissiveRadiance = vec3( 0.0 );');
+  };
+  mat.customProgramCacheKey = () => `facade-${opts.key}`;
+  return mat;
 }
 
 /** Small text decal (registration / brand) drawn to canvas. */

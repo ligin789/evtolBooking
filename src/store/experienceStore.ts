@@ -29,6 +29,9 @@ interface ExperienceState {
   cameraBusy: boolean;
   /** After a seat is focused, glide into the passenger's perspective automatically. */
   autoPov: boolean;
+  /** False once the landing content has scrolled over the 3D hero (rendering pauses). */
+  heroInView: boolean;
+  setHeroInView: (b: boolean) => void;
   setAutoPov: (b: boolean) => void;
   setStage: (s: Stage) => void;
   setExteriorView: (v: ExteriorView) => void;
@@ -50,6 +53,8 @@ export const useExperience = create<ExperienceState>((set) => ({
   sceneReady: false,
   cameraBusy: false,
   autoPov: true,
+  heroInView: true,
+  setHeroInView: (heroInView) => set({ heroInView }),
   setAutoPov: (autoPov) => set({ autoPov }),
   setStage: (stage) =>
     set((s) => ({

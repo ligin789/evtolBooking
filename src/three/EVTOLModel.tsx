@@ -88,7 +88,7 @@ function Fuselage({ cfg, layout, mats }: PartProps) {
     return [make(1), make(-1)];
   }, [cfg]);
 
-  const regTex = useMemo(() => makeTextTexture('AERIS', { color: '#1f2125', font: '700 84px "Inter Tight", system-ui, sans-serif' }), []);
+  const regTex = useMemo(() => makeTextTexture('VIBE', { color: '#1f2125', font: '700 84px "Inter Tight", system-ui, sans-serif' }), []);
   useEffect(() => () => regTex.dispose(), [regTex]);
   const brandZ = -cfg.length * 0.3;
   const brandR = hullRadiusAt(cfg, brandZ);
